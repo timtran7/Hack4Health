@@ -2,10 +2,17 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client, Client
 import numpy as np
+from pages import b_Food
 from pathlib import Path
 from datetime import date
 from dotenv import load_dotenv
 import os
+
+st.set_page_config(
+    page_title="Hello",
+    page_icon="👋",
+)
+st.sidebar.success("Select a page below")
 
 load_dotenv()
 supabase_url = os.getenv("SUPABASE_URL")
@@ -13,44 +20,6 @@ supabase_key = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(supabase_url, supabase_key)
 
 def whole_project():
-    st.title("Hack4Health Project")
-    with st.form("how"):
-        st.write("Health Tracker")
-        st.number_input("calories consumed", icon="🍞")
-        weight = st.number_input("Weight in kgs")
-        height = st.number_input("height in cm", icon="📏")
-        sex = st.radio("Sex",["Male","Female"])
-        Exercise_Lvl=st.radio("Activity Level",["Sedentary",
-        "Light Activity","Moderate Activity", "Very Active", "Extra Active"])
-        age=st.number_input("Age")
-        if sex=="Male":
-            BMR=((10*weight)+(6.25*height)-(5*age)+5)
-            if Exercise_Lvl=="Sedentary":
-                cal = BMR*1.2
-            elif(Exercise_Lvl=="Light Activity"):
-                cal = BMR*1.375
-            elif(Exercise_Lvl=="Moderate Activity"):
-                cal = BMR*1.55
-            elif(Exercise_Lvl=="Very Active"):
-                cal = BMR*1.725
-            else:
-                cal = BMR*1.9
-            st.write(cal)
-        else:
-            BMR=((10*weight)+(6.25*height)-(5*age)-161)
-            if Exercise_Lvl=="Sedentary":
-                cal = BMR*1.2
-            elif(Exercise_Lvl=="Light Activity"):
-                cal = BMR*1.375
-            elif(Exercise_Lvl=="Moderate Activity"):
-                cal = BMR*1.55
-            elif(Exercise_Lvl=="Very Active"):
-                cal = BMR*1.725
-            else:
-                cal = BMR*1.9
-            st.write(cal)
-        
-        st.form_submit_button("Submit")
 
     st.title("😴 Sleep Tracker")
 
@@ -84,7 +53,7 @@ def whole_project():
         st.dataframe(df)
 
     st.title("Water Calculator")
-    mL_to_Drink=weight*0.5
+    mL_to_Drink=b_Food.weight*0.5
 
     # Set up session state to store data
     if "water_data" not in st.session_state:
@@ -128,6 +97,13 @@ def sign_in(email, password):
         return user
     except Exception as e:
         st.error(f"Login failed: {e}")
+def anon_acct():
+    try:
+        user=supabase.auth.sign_in_anonymously(
+            {"options": {"captcha_token": ""}})
+        return user
+    except Exception as e:
+        st.error(f"Guest Account failed: {e}")
 
 def sign_out():
     try:
@@ -141,11 +117,20 @@ def main_app(user_email):
     st.title("🎉 Welcome Page")
     st.success(f"Welcome, {user_email}! 👋")
     whole_project()
+    with st.sidebar():
+        if st.button("Logout"):
+            sign_out()
+
+def alt_main_app():
+    st.title("🎉 Welcome Page")
+    st.success(f"Welcome, user! 👋")
+    whole_project()
     if st.button("Logout"):
         sign_out()
 
+
 def auth_screen():
-    st.title("🔐 Streamlit & Supabase Auth App")
+    st.title("🔐 Sign in or create an account")
     option = st.selectbox("Choose an action:", ["Login", "Sign Up"])
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
@@ -169,3 +154,7 @@ if st.session_state.user_email:
     main_app(st.session_state.user_email)
 else:
     auth_screen()
+
+if st.button("Guest Account"):
+    anon_acct()
+    alt_main_app()
