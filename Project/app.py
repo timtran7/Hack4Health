@@ -52,9 +52,8 @@ def sign_out():
 def main_app(user_email):
     st.title("🎉 Welcome Page")
     st.success(f"Welcome, {user_email}! 👋")
-    with st.sidebar():
-        if st.button("Logout"):
-            sign_out()
+    if st.button("Logout"):
+        sign_out()
 
 def alt_main_app():
     st.title("🎉 Welcome Page")
