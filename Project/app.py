@@ -2,15 +2,15 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client, Client
 import numpy as np
-from pages import b_Food
 from pathlib import Path
 from datetime import date
 from dotenv import load_dotenv
 import os
+import sys
 
 st.set_page_config(
-    page_title="Hello",
-    page_icon="👋",
+    page_title="Hack4Health",
+    page_icon="📊",
 )
 st.sidebar.success("Select a page below")
 
@@ -19,70 +19,6 @@ supabase_url = os.getenv("SUPABASE_URL")
 supabase_key = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(supabase_url, supabase_key)
 
-def whole_project():
-
-    st.title("😴 Sleep Tracker")
-
-    # Set up session state to store data
-    if "sleep_data" not in st.session_state:
-        start = date.today()
-        st.session_state.sleep_data = pd.DataFrame({
-            "Date": pd.date_range(start=start, periods=8, freq='D'),
-            "Hours Slept": [0] * 8
-        })
-
-    df = st.session_state.sleep_data
-
-    # Select a date to update
-    selected_date = st.selectbox("Pick a day to update sleep", df["Date"].dt.date)
-
-    # Get current value for that date
-    current_hours = df.loc[df["Date"].dt.date == selected_date, "Hours Slept"].values[0]
-
-    # Let user adjust hours
-    new_hours = st.number_input("hours of sleep", icon ="💤", placeholder="Type the hours of sleep you had that day")
-
-    # Update value in session state
-    df.loc[df["Date"].dt.date == selected_date, "Hours Slept"] = new_hours
-
-    # Show chart
-    st.line_chart(df.set_index("Date"))
-
-    # Optional: show data
-    if st.checkbox("Show data"):
-        st.dataframe(df)
-
-    st.title("Water Calculator")
-    mL_to_Drink=b_Food.weight*0.5
-
-    # Set up session state to store data
-    if "water_data" not in st.session_state:
-        start = date.today()
-        st.session_state.water_data = pd.DataFrame({
-            "Date": pd.date_range(start=start, periods=8, freq='D'),
-            "Water Drank (mL)": [0] * 8
-        })
-
-    df = st.session_state.water_data
-
-    # Select a date to update
-    selected_date = st.selectbox("Pick a day to update water intake", df["Date"].dt.date)
-
-    # Get current value for that date
-    current_water = df.loc[df["Date"].dt.date == selected_date, "Water Drank (mL)"].values[0]
-
-    # Let user adjust water consumed
-    new_water = st.number_input("mL of water consumed", icon ="💧", placeholder="Type the mL of water you drank that day")
-
-    # Update value in session state
-    df.loc[df["Date"].dt.date == selected_date, "Water Drank (mL)"] = new_water
-
-    # Show chart
-    st.line_chart(df.set_index("Date"))
-
-    # Optional: show data table
-    if st.checkbox("Show raw data"):
-        st.dataframe(df)
 
 def sign_up(email, password):
     try:
@@ -116,7 +52,6 @@ def sign_out():
 def main_app(user_email):
     st.title("🎉 Welcome Page")
     st.success(f"Welcome, {user_email}! 👋")
-    whole_project()
     with st.sidebar():
         if st.button("Logout"):
             sign_out()
@@ -124,7 +59,6 @@ def main_app(user_email):
 def alt_main_app():
     st.title("🎉 Welcome Page")
     st.success(f"Welcome, user! 👋")
-    whole_project()
     if st.button("Logout"):
         sign_out()
 
