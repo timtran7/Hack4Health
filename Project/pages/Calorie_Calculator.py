@@ -12,14 +12,16 @@ def cal_calc(name):
     st.title("Calorie Calculator")
     with st.form(name):
         st.write("Health Tracker")
-        st.number_input("calories consumed", icon="🍞")
-        weight = st.number_input("Weight in kgs")
-        height = st.number_input("height in cm", icon="📏")
+        st.number_input("calories consumed", icon="🍞", step=1)
+        weight = st.number_input("Weight in kgs", icon="🏋️‍♂️", step=.1)
+        height = st.number_input("height in cm", icon="📏", step=.1)
         sex = st.radio("Sex", ["Male", "Female"])
         Exercise_Lvl = st.radio("Activity Level", [
-            "Sedentary", "Light Activity", "Moderate Activity", "Very Active", "Extra Active"
+            "Sedentary (little or no exercise)", "Light Activity (light exercise 1-3 days/week)",
+              "Moderate Activity (moderate exercise 3-5 days/week)",
+                "Very Active (hard exercise 6-7 days/week)", "Extra Active (very hard daily exercise or physical job)"
         ])
-        age = st.number_input("Age")
+        age = st.number_input("Age", step=1)
 
         if sex == "Male":
             BMR = ((10 * weight) + (6.25 * height) - (5 * age) + 5)
@@ -37,7 +39,7 @@ def cal_calc(name):
         else:
             cal = BMR * 1.9
 
-        st.write(cal)
+        st.write("Necessary calories to maintain weight: " + str(cal))
         st.form_submit_button("Submit")
 
 
@@ -64,7 +66,7 @@ def track_cal():
     current_cal = df.loc[mask, "Calories consumed"].values[0] if mask.any() else 0
 
     # Let user adjust calorie input
-    new_cal = st.number_input("cal of food consumed", icon="💧", placeholder="Type the cal of food you ate that day")
+    new_cal = st.number_input("cal of food consumed", icon="🥘", placeholder="Type the cal of food you ate that day")
 
     # Update value in session state
     df.loc[mask, "Calories consumed"] = new_cal
