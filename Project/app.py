@@ -8,21 +8,44 @@ from dotenv import load_dotenv
 import os
 import sys
 
-st.set_page_config(
-    page_title="Hack4Health",
-    page_icon="📊",
-)
+# Page config
+st.set_page_config(page_title="Hack4Health", page_icon="📊")
 st.sidebar.success("Select a page below")
 
+# Load .env and initialize Supabase
 load_dotenv()
 supabase_url = os.getenv("SUPABASE_URL")
 supabase_key = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(supabase_url, supabase_key)
 
+# Save user to database
+def save_user_data(email):
+    try:
+        supabase.table("users").insert({"email": email}).execute()
+    except Exception as e:
+        st.error(f"Could not save user data: {e}")
 
+# Retrieve user info
+def get_user_data(email):
+    try:
+        response = supabase.table("users").select("*").eq("email", email).limit(1).execute()
+        data = response.data
+        if data and len(data) > 0:
+            return data[0]
+        else:
+            return None
+    except Exception as e:
+        st.error(f"Error retrieving user data: {e}")
+        return None
+
+# Authentication logic
 def sign_up(email, password):
     try:
         user = supabase.auth.sign_up({"email": email, "password": password})
+        if user and user.user:
+            existing_user = get_user_data(email)
+            if not existing_user:
+                save_user_data(email)
         return user
     except Exception as e:
         st.error(f"Registration failed: {e}")
@@ -30,13 +53,19 @@ def sign_up(email, password):
 def sign_in(email, password):
     try:
         user = supabase.auth.sign_in_with_password({"email": email, "password": password})
+        if user and user.user:
+            existing_user = get_user_data(email)
+            if not existing_user:
+                save_user_data(email)
         return user
     except Exception as e:
         st.error(f"Login failed: {e}")
+
 def anon_acct():
     try:
-        user=supabase.auth.sign_in_anonymously(
-            {"options": {"captcha_token": ""}})
+        user = supabase.auth.sign_in_anonymously({"options": {"captcha_token": ""}})
+        if user and user.user:
+            save_user_data("anonymous_user_" + user.user.id)
         return user
     except Exception as e:
         st.error(f"Guest Account failed: {e}")
@@ -49,19 +78,28 @@ def sign_out():
     except Exception as e:
         st.error(f"Logout failed: {e}")
 
+# Main UI after login
 def main_app(user_email):
+    user_data = get_user_data(user_email)
     st.title("🎉 Welcome Page")
     st.success(f"Welcome, {user_email}! 👋")
+
+    if user_data:
+        st.subheader("Your Profile:")
+        for key, value in user_data.items():
+            st.write(f"**{key.capitalize()}**: {value}")
+
     if st.button("Logout"):
         sign_out()
 
+# Guest version
 def alt_main_app():
     st.title("🎉 Welcome Page")
-    st.success(f"Welcome, user! 👋")
+    st.success("Welcome, guest! 👋")
     if st.button("Logout"):
         sign_out()
 
-
+# Login/signup screen
 def auth_screen():
     st.title("🔐 Sign in or create an account")
     option = st.selectbox("Choose an action:", ["Login", "Sign Up"])
@@ -80,14 +118,18 @@ def auth_screen():
             st.success(f"Welcome back, {email}!")
             st.rerun()
 
+# Session state handling
 if "user_email" not in st.session_state:
     st.session_state.user_email = None
 
+# Main routing logic
 if st.session_state.user_email:
     main_app(st.session_state.user_email)
 else:
     auth_screen()
 
+# Guest login
 if st.button("Guest Account"):
-    anon_acct()
-    alt_main_app()
+    user = anon_acct()
+    if user and user.user:
+        alt_main_app()
