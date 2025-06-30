@@ -56,15 +56,15 @@ st.subheader("Your Progress")
 
 # Example: you may want to add defaults or handle missing functions
 try:
-    current_cal = Calorie_Calculator.get_current_cal()
+    current_cal = Calorie_Tracker.get_current_cal()
 except Exception:
     current_cal = 0
 try:
-    current_water = Water.get_current_water()
+    current_water = Water_Tracker.get_current_water()
 except Exception:
     current_water = 0
 try:
-    current_sleep = Sleep.get_current_sleep()
+    current_sleep = Sleep_Tracker.get_current_sleep()
 except Exception:
     current_sleep = 0
 

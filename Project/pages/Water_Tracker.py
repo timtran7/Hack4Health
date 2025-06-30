@@ -8,6 +8,36 @@ import importlib.util
 import sys
 from dotenv import load_dotenv
 import os
+
+# Load environment variables and initialize Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def get_user_data(email):
+    try:
+        response = supabase.table("users").select("*").eq("email", email).limit(1).execute()
+        data = response.data
+        if data and len(data) > 0:
+            return data[0]
+        return None
+    except Exception as e:
+        st.error(f"Error retrieving user data: {e}")
+        return None
+# Load environment variables and initialize Supabase
+user_email = st.session_state.get("user_email")
+
+if not user_email:
+    st.warning("Please log in to access your health tracker data.")
+    st.stop()
+
+# Fetch full user data once
+user_data = get_user_data(user_email)
+if not user_data:
+    st.error("User data not found.")
+    st.stop()
+# --- Water Tracker UI ---
 def track_water(name):
     st.title(name)
     # Set up session state to store data

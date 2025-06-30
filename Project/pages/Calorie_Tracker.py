@@ -6,13 +6,43 @@ from pathlib import Path
 from datetime import date
 from dotenv import load_dotenv
 import os
+import supabase
+
+# Load environment variables and initialize Supabase
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def get_user_data(email):
+    try:
+        response = supabase.table("users").select("*").eq("email", email).limit(1).execute()
+        data = response.data
+        if data and len(data) > 0:
+            return data[0]
+        return None
+    except Exception as e:
+        st.error(f"Error retrieving user data: {e}")
+        return None
+# Load environment variables and initialize Supabase
+user_email = st.session_state.get("user_email")
+
+if not user_email:
+    st.warning("Please log in to access your health tracker data.")
+    st.stop()
+
+# Fetch full user data once
+user_data = get_user_data(user_email)
+if not user_data:
+    st.error("User data not found.")
+    st.stop()
+
 
 # --- Calorie Calculator UI ---
 def cal_calc(name):
     st.title("Calorie Calculator")
     with st.form(name):
         st.write("Health Tracker")
-        st.number_input("calories consumed", icon="🍞", step=1)
         weight = st.number_input("Weight in kgs", icon="🏋️‍♂️", step=.1)
         height = st.number_input("height in cm", icon="📏", step=.1)
         sex = st.radio("Sex", ["Male", "Female"])
@@ -41,6 +71,7 @@ def cal_calc(name):
 
         st.write("Necessary calories to maintain weight: " + str(cal))
         st.form_submit_button("Submit")
+        st.session_state.calories = cal  # Store in session state for later use
 
 
 def track_cal():
