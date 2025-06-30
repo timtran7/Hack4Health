@@ -21,7 +21,7 @@ def cal_calc(name):
               "Moderate Activity (moderate exercise 3-5 days/week)",
                 "Very Active (hard exercise 6-7 days/week)", "Extra Active (very hard daily exercise or physical job)"
         ])
-        age = st.number_input("Age", step=1)
+        age = st.number_input("Age", step=1,)
 
         if sex == "Male":
             BMR = ((10 * weight) + (6.25 * height) - (5 * age) + 5)
@@ -66,13 +66,13 @@ def track_cal():
     current_cal = df.loc[mask, "Calories consumed"].values[0] if mask.any() else 0
 
     # Let user adjust calorie input
-    new_cal = st.number_input("cal of food consumed", icon="🥘", placeholder="Type the cal of food you ate that day")
+    new_cal = st.number_input("cal of food consumed", icon="🥘", placeholder="Type the cal of food you ate that day", min_value=0,)
 
     # Update value in session state
     df.loc[mask, "Calories consumed"] = new_cal
 
     # Show chart
-    st.line_chart(df.set_index("Date"))
+    st.line_chart(df.set_index("Date"), color="#FF0000")
 
     # Optional: show data table
     if st.checkbox("Show raw data"):

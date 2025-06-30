@@ -2,7 +2,7 @@ import streamlit as st
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
-from pages import Water, Sleep, Calorie_Calculator  # your existing modules
+from pages import Water_Tracker, Sleep_Tracker, Calorie_Tracker  # your existing modules
 
 # Load environment variables and initialize Supabase
 load_dotenv()
@@ -75,7 +75,7 @@ water_goal = st.sidebar.number_input("Water Goal (ml)", min_value=0, value=2000)
 sleep_goal = st.sidebar.number_input("Sleep Goal (hours)", min_value=0.0, value=8.0, step=0.5)
 
 st.write("Calories")
-st.progress(min(current_cal / calorie_goal, 1.0) if calorie_goal else 0.0)
+st.progress(min(current_cal / calorie_goal, 1.0) if calorie_goal else 0.0,)
 
 st.write("Water (ml)")
 st.progress(min(current_water / water_goal, 1.0) if water_goal else 0.0)

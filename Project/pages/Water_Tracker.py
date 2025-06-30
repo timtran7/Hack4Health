@@ -27,7 +27,7 @@ def track_water(name):
     current_water = df.loc[df["Date"].dt.date == selected_date, "Water consumed (mL)"].values[0]
 
     # Let user adjust water consumed
-    new_water = st.number_input("mL of water consumed", icon ="💧", placeholder="Type the mL of water you drank that day")
+    new_water = st.number_input("mL of water consumed", icon ="💧", placeholder="Type the mL of water you drank that day", step=0.10, min_value=0.00)
 
     # Update value in session state
     df.loc[df["Date"].dt.date == selected_date, "Water consumed (mL)"] = new_water

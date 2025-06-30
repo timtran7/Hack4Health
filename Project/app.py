@@ -6,11 +6,14 @@ from pathlib import Path
 from datetime import date
 from dotenv import load_dotenv
 import os
-import sys
+import streamlit as st
+from PIL import Image
+import os
 
 # Page config
 st.set_page_config(page_title="Hack4Health", page_icon="📊")
-st.sidebar.success("Select a page below")
+st.sidebar.success("Select a page above")
+st.image("Project/assets/Trakadilo_no_title.png", width=200)
 
 # Load .env and initialize Supabase
 load_dotenv()

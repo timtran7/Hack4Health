@@ -1,17 +1,12 @@
 import streamlit as st
 import pandas as pd
-from supabase import create_client
 from dotenv import load_dotenv
 import os
 from datetime import date, timedelta
-import streamlit as st
-import pandas as pd
 from supabase import create_client, Client
 import numpy as np
 from pathlib import Path
 from datetime import date
-from dotenv import load_dotenv
-import os
 
 def track_sleep():
     st.title("😴 Sleep Tracker")
@@ -33,13 +28,13 @@ def track_sleep():
     current_hours = df.loc[df["Date"].dt.date == selected_date, "Hours Slept"].values[0]
 
     # Let user adjust hours
-    new_hours = st.number_input("hours of sleep", icon ="💤", placeholder="Type the hours of sleep you had that day")
+    new_hours = st.number_input("hours of sleep", icon ="💤", step=0.25, placeholder="Type the hours of sleep you had that day", min_value=0.00, max_value=24.00)
 
     # Update value in session state
     df.loc[df["Date"].dt.date == selected_date, "Hours Slept"] = new_hours
 
     # Show chart
-    st.line_chart(df.set_index("Date"))
+    st.line_chart(df.set_index("Date"), color="#800080")
 
     # Optional: show data
     if st.checkbox("Show data"):
@@ -57,4 +52,4 @@ def get_current_sleep():
         mask = df["Date"].dt.date == today
         if mask.any():
             return float(df.loc[mask, "Hours Slept"].values[0])
-    return 0.0
+    return 0.0 
