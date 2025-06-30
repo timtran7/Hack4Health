@@ -91,4 +91,3 @@ def get_current_cal():
 if __name__ == "__main__":
     cal_calc("Calorie Calculator")
     track_cal()
-

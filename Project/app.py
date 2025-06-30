@@ -22,6 +22,7 @@ supabase: Client = create_client(supabase_url, supabase_key)
 def save_user_data(email):
     try:
         supabase.table("users").insert({"email": email}).execute()
+        st.session_state.user_email = email
     except Exception as e:
         st.error(f"Could not save user data: {e}")
 
@@ -29,6 +30,7 @@ def save_user_data(email):
 def get_user_data(email):
     try:
         response = supabase.table("users").select("*").eq("email", email).limit(1).execute()
+        st.session_state.user_email = email
         data = response.data
         if data and len(data) > 0:
             return data[0]
