@@ -11,6 +11,8 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+st.title("Trakadilo")
+st.set_page_config(page_title="Sleep Tracker", layout="centered", page_icon="📊")
 
 image_path = Path("/workspaces/Hack4Health/Project/assets/Trakadilo_no_title.png")
 
@@ -30,7 +32,7 @@ def get_user_data(email):
 
 user_email = st.session_state.get("user_email")
 if not user_email:
-    st.warning("🔒 Please log in to access your Sleep Tracker data.")
+    st.warning("⚠️ Please log in to access your sleep tracker data.")
     st.stop()
 
 user_data = get_user_data(user_email)
@@ -98,4 +100,4 @@ if __name__ == "__main__":
     track_sleep()
 #Footer
 st.markdown("---")
-st.caption("Made with ❤️ by Team Trakadillo")
+st.caption("Made with ❤️ by Team Trakadilo")

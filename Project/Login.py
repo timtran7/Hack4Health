@@ -7,6 +7,9 @@ from datetime import date
 from dotenv import load_dotenv
 import os
 
+st.title("Welcome to Trakadilo")
+st.write("Your **personal health tracker** for calories, water, sleep and personal notes." \
+" Log in to continue, or try as a guest.")
 st.set_page_config(page_title="Trakadilo Login", page_icon="📊", layout="centered")
 load_dotenv()
 
@@ -123,4 +126,4 @@ else:
     auth_screen()
 #Footer
 st.markdown("---")
-st.caption("Made with ❤️ by Team Trakadillo")
+st.caption("Made with ❤️ by Team Trakadilo")

@@ -10,6 +10,9 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+st.title("Trakadilo")
+st.set_page_config(page_title="Home", layout="centered", page_icon="📊")
+
 image_path = Path("/workspaces/Hack4Health/Project/assets/Trakadilo_no_title.png")
 
 st.logo(image_path)
@@ -46,8 +49,7 @@ if not user_data:
     st.error("🚫 User data not found.")
     st.stop()
 
-st.set_page_config(page_title="Health Tracker", layout="centered", page_icon="📊")
-st.title("📊 Daily Health Tracker")
+st.title("📊 Home")
 
 with st.expander("View Profile"):
         if user_data:
@@ -98,5 +100,6 @@ with st.form("notes_form"):
     if submitted:
         save_note_data(notes_input, user_email)
 #Footer
-st.markdown("---")
-st.caption("Made with ❤️ by Team Trakadillo")
+if __name__ == "__main__":
+    st.markdown("---")
+    st.caption("Made with ❤️ by Team Trakadilo")

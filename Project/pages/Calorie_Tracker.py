@@ -6,13 +6,14 @@ from dotenv import load_dotenv
 import os
 from pathlib import Path
 
-# --- Load environment and Supabase ---
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Path to image
+st.title("Trakadilo")
+st.set_page_config(page_title="Calorie Tracker", layout="centered", page_icon="📊")
+
 image_path = Path("/workspaces/Hack4Health/Project/assets/Trakadilo_no_title.png")
 
 st.logo(image_path)
@@ -27,10 +28,9 @@ def get_user_data(email):
         st.error(f"Error retrieving user data: {e}")
         return None
 
-# --- Check login ---
 user_email = st.session_state.get("user_email")
 if not user_email:
-    st.warning("🔒 Please log in to access the Calorie Tracker.")
+    st.warning("⚠️ Please log in to access your calorie tracker data.")
     st.stop()
 
 user_data = get_user_data(user_email)
@@ -38,7 +38,6 @@ if not user_data:
     st.error("🚫 User data not found.")
     st.stop()
 
-# --- Calorie Calculator UI ---
 def cal_calc(name):
     st.markdown("## 🔢 Calorie Calculator")
     st.markdown("Estimate your daily caloric needs based on your activity level.")
@@ -83,7 +82,7 @@ def cal_calc(name):
 
             st.session_state.calories = cal  # Store in session state
 
-# --- Calorie Tracker ---
+#Calorie Tracker
 def track_cal():
     st.markdown("## 📈 Calorie Intake Tracker")
 
@@ -106,15 +105,15 @@ def track_cal():
         df.loc[mask, "Calories consumed"] = new_cal
         st.success(f"✅ Logged {new_cal} cal for {selected_date} successfully!")
 
-    # Show chart
+    
     st.markdown("### 📊 Weekly Calorie Overview")
     st.line_chart(df.set_index("Date"), use_container_width=True)
 
-    # Optional: Raw data toggle
+    
     with st.expander("📄 Show Raw Data"):
         st.dataframe(df, use_container_width=True)
 
-# --- Getter for Home Page ---
+
 def get_current_cal():
     df = st.session_state.get("cal_data", None)
     if df is not None:
@@ -124,11 +123,11 @@ def get_current_cal():
             return float(df.loc[mask, "Calories consumed"].values[0])
     return 0.0
 
-# --- Run Components ---
+
 if __name__ == "__main__":
     cal_calc("calorie_form")
     st.markdown("---")
     track_cal()
 #Footer
 st.markdown("---")
-st.caption("Made with ❤️ by Team Trakadillo")
+st.caption("Made with ❤️ by Team Trakadilo")
