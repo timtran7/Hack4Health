@@ -9,7 +9,7 @@ import os
 
 st.title("Welcome to Trakadilo")
 st.write("Your **personal health tracker** for calories, water, sleep and personal notes." \
-" Log in to continue, or try as a guest.")
+" Log in to continue, or try as a guest. Use the sidebar on the left to navigate through the app.")
 st.set_page_config(page_title="Trakadilo Login", page_icon="📊", layout="centered")
 load_dotenv()
 
