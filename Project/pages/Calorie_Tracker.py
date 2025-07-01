@@ -4,12 +4,19 @@ from supabase import create_client, Client
 from datetime import date
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 
 # --- Load environment and Supabase ---
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Path to image
+image_path = Path("/workspaces/Hack4Health/Project/assets/Trakadilo_no_title.png")
+
+st.logo(image_path)
+
 
 def get_user_data(email):
     try:
@@ -122,3 +129,6 @@ if __name__ == "__main__":
     cal_calc("calorie_form")
     st.markdown("---")
     track_cal()
+#Footer
+st.markdown("---")
+st.caption("Made with ❤️ by Team Trakadillo")

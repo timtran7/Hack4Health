@@ -3,14 +3,17 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
 from pages import Water_Tracker, Sleep_Tracker, Calorie_Tracker
+from pathlib import Path
 
-# Load environment variables and initialize Supabase
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- Functions ---
+image_path = Path("/workspaces/Hack4Health/Project/assets/Trakadilo_no_title.png")
+
+st.logo(image_path)
+
 def get_user_data(email):
     try:
         response = supabase.table("users").select("*").eq("email", email).limit(1).execute()
@@ -32,7 +35,6 @@ def save_note_data(notes, email):
     except Exception as e:
         st.error(f"Could not save notes: {e}")
 
-# --- Session and User Load ---
 user_email = st.session_state.get("user_email", None)
 
 if not user_email:
@@ -44,23 +46,19 @@ if not user_data:
     st.error("🚫 User data not found.")
     st.stop()
 
-# --- Page Setup ---
 st.set_page_config(page_title="Health Tracker", layout="centered", page_icon="📊")
 st.title("📊 Daily Health Tracker")
 
-# --- Profile Section (excluding notes) ---
-st.subheader("Your Profile")
-for key, value in user_data.items():
-    if key.lower() != "notes":
-        st.write(f"**{key.capitalize()}**: {value}")
+with st.expander("View Profile"):
+        if user_data:
+            for key, value in user_data.items():
+                st.write(f"**{key.capitalize()}**: {value}")
 
-# --- Goal Settings ---
 st.sidebar.header("🎯 Set Your Daily Goals")
-calorie_goal = st.sidebar.number_input("Calories (kcal)", min_value=0, value=2000)
+calorie_goal = st.sidebar.number_input("Calories (cal)", min_value=0, value=2000)
 water_goal = st.sidebar.number_input("Water (ml)", min_value=0, value=2000)
 sleep_goal = st.sidebar.number_input("Sleep (hours)", min_value=0.0, value=8.0, step=0.5)
 
-# --- Get Current Stats ---
 try:
     current_cal = Calorie_Tracker.get_current_cal()
 except Exception:
@@ -74,11 +72,9 @@ try:
 except Exception:
     current_sleep = 0
 
-# --- Progress Section ---
 st.markdown("---")
 st.subheader("📈 Your Progress")
 
-# Utility function
 def display_metric(label, icon, current, goal, unit):
     percent = (current / goal * 100) if goal else 0
     st.markdown(f"### {icon} {label}")
@@ -89,12 +85,10 @@ def display_metric(label, icon, current, goal, unit):
         st.progress(min(current / goal, 1.0) if goal else 0.0)
     st.caption(f"**{current} / {goal} {unit}**")
 
-# Show metrics
-display_metric("Calories", "🔥", current_cal, calorie_goal, "kcal")
+display_metric("Calories", "🔥", current_cal, calorie_goal, "cal")
 display_metric("Water", "💧", current_water, water_goal, "ml")
 display_metric("Sleep", "🌙", current_sleep, sleep_goal, "hours")
 
-# --- Notes Section ---
 st.markdown("---")
 st.subheader("📝 Your Notes")
 notes = user_data.get("notes", "") or ""
@@ -103,7 +97,6 @@ with st.form("notes_form"):
     submitted = st.form_submit_button("💾 Save Notes")
     if submitted:
         save_note_data(notes_input, user_email)
-
-# Optional: Footer
+#Footer
 st.markdown("---")
 st.caption("Made with ❤️ by Team Trakadillo")
