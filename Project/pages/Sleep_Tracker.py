@@ -2,83 +2,91 @@ import streamlit as st
 import pandas as pd
 from dotenv import load_dotenv
 import os
-from datetime import date, timedelta
-from supabase import create_client, Client
-import numpy as np
-from pathlib import Path
 from datetime import date
+from supabase import create_client, Client
 
-# Load environment variables and initialize Supabase
+# --- Load environment variables and initialize Supabase ---
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# --- Get user from Supabase ---
 def get_user_data(email):
     try:
         response = supabase.table("users").select("*").eq("email", email).limit(1).execute()
         data = response.data
-        if data and len(data) > 0:
-            return data[0]
-        return None
+        return data[0] if data else None
     except Exception as e:
         st.error(f"Error retrieving user data: {e}")
         return None
-# Load environment variables and initialize Supabase
-user_email = st.session_state.get("user_email")
 
+# --- Check if logged in ---
+user_email = st.session_state.get("user_email")
 if not user_email:
-    st.warning("Please log in to access your health tracker data.")
+    st.warning("🔒 Please log in to access your health tracker data.")
     st.stop()
 
-# Fetch full user data once
 user_data = get_user_data(user_email)
 if not user_data:
-    st.error("User data not found.")
+    st.error("🚫 User data not found.")
     st.stop()
 
+# --- Sleep Tracker Function ---
 def track_sleep():
     st.title("😴 Sleep Tracker")
+    st.markdown("Track how many hours you sleep each night to build better habits.")
 
-    # Set up session state to store data
+    # Initialize data
     if "sleep_data" not in st.session_state:
-        start = date.today()
         st.session_state.sleep_data = pd.DataFrame({
-            "Date": pd.date_range(start=start, periods=8, freq='D'),
+            "Date": pd.date_range(start=date.today(), periods=8, freq="D"),
             "Hours Slept": [0] * 8
         })
 
     df = st.session_state.sleep_data
 
-    # Select a date to update
-    selected_date = st.selectbox("Pick a day to update sleep", df["Date"].dt.date)
+    # Date selector
+    selected_date = st.selectbox("📅 Pick a date to update sleep:", df["Date"].dt.date)
 
-    # Get current value for that date
-    current_hours = df.loc[df["Date"].dt.date == selected_date, "Hours Slept"].values[0]
+    # Get current value
+    mask = df["Date"].dt.date == selected_date
+    current_hours = df.loc[mask, "Hours Slept"].values[0] if mask.any() else 0.0
 
-    # Let user adjust hours
-    new_hours = st.number_input("hours of sleep", icon ="💤", step=0.25, placeholder="Type the hours of sleep you had that day", min_value=0.00, max_value=24.00)
 
-    # Update value in session state
-    df.loc[df["Date"].dt.date == selected_date, "Hours Slept"] = new_hours
+    # New input
+    new_hours = st.number_input(
+        "💤 Enter hours of sleep:",
+        step=0.25,
+        min_value=0.0,
+        max_value=24.0,
+        value=float(current_hours)
+    )
 
-    # Show chart
-    st.line_chart(df.set_index("Date"), color="#800080")
+    if st.button("💾 Update Sleep Log"):
+        df.loc[mask, "Hours Slept"] = new_hours
+        st.success(f"✅ Logged {new_hours} hrs for {selected_date} successfully!")
 
-    # Optional: show data
-    if st.checkbox("Show data"):
-        st.dataframe(df)
+    # Sleep Chart
+    st.markdown("### 📊 Weekly Sleep Overview")
+    st.line_chart(df.set_index("Date"), use_container_width=True)
+
+    # Optional raw data
+    with st.expander("📄 Show Sleep Data Table"):
+        st.dataframe(df, use_container_width=True)
+
     return current_hours
-if __name__=="__main__":
-    track_sleep()
-def get_current_sleep():
-    import streamlit as st
-    from datetime import date
 
+# --- Expose Function for Use in Home ---
+def get_current_sleep():
     df = st.session_state.get("sleep_data", None)
     if df is not None:
         today = date.today()
         mask = df["Date"].dt.date == today
         if mask.any():
             return float(df.loc[mask, "Hours Slept"].values[0])
-    return 0.0 
+    return 0.0
+
+# --- Run Tracker ---
+if __name__ == "__main__":
+    track_sleep()

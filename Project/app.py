@@ -11,7 +11,7 @@ from PIL import Image
 import os
 
 # Page config
-st.set_page_config(page_title="Hack4Health", page_icon="📊")
+st.set_page_config(page_title="Trakadilo Login", page_icon="📊")
 st.sidebar.success("Select a page above")
 st.image("Project/assets/Trakadilo_no_title.png", width=200)
 
